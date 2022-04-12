@@ -24,6 +24,12 @@
 /* 垂直间距 */
 /* 透明度 */
 /* 文章场景相关 */
+.search-box {
+  position: -webkit-sticky;
+  position: sticky;
+  z-index: 999;
+  top: 0;
+}
 swiper {
   height: 330rpx;
 }

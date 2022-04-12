@@ -1,5 +1,8 @@
 <template>
 	<view>
+		<view class="search-box">
+			<my-search @myclick='gotoSearch'></my-search>
+		</view>
 		<!-- 轮播图的区域 -->
 		<swiper :indicator-dots="true" :autoplay="true" :interval="3000" :duration="1000" :circular="true">
 			<swiper-item v-for="(item,index) in swiperList" :key="index">
@@ -100,12 +103,22 @@
 				})
 				this.floorList = res.message
 				console.log(this.floorList)
+			},
+			gotoSearch(){
+				uni.navigateTo({
+					url:'/subpkg/search/search'
+				})
 			}
 		}
 	}
 </script>
 
 <style lang="scss">
+	.search-box{
+		position: sticky;
+		z-index: 999;
+		top: 0;
+	}
 	swiper {
 		height: 330rpx;
 

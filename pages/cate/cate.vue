@@ -1,5 +1,10 @@
 <template>
 	<view>
+		<!-- 使用自定义的搜索组件 -->
+		<!-- 这是一个自定义属性  颜色-->
+		<!-- <my-search :bgcolor="'pink'"></my-search> -->
+		<my-search @myclick='gotoSearch'></my-search>
+
 		<view class="scroll-view-container">
 			<!-- 左侧的滑动区域 -->
 			<scroll-view class="left-scroll-view" scroll-y="true" :style="{height: wh + 'px'}">
@@ -49,41 +54,47 @@
 		onLoad() {
 			const sysInfo = uni.getSystemInfoSync()
 			console.log(sysInfo)
-			this.wh = sysInfo.windowHeight
+			this.wh = sysInfo.windowHeight - 50
 
 			this.getCateList()
 		},
 		methods: {
 			async getCateList() {
+
 				const {
 					data: res
 				} = await uni.$http.get('/api/public/v1/categories')
 				if (res.meta.status !== 200) return uni.$showMsg()
 				this.cateList = res.message
-
 				// 拿到二级分类
+				res.message[0].children.forEach(item => {
+					item.children.forEach(ite => {
+						ite.cat_icon = ite.cat_icon.replace("dev", "web")
+					})
+				})
 				this.cateLevel2 = res.message[0].children
 			},
 			activeChanged(index) {
 				this.active = index
 				// 重新为二级分类赋值
 				this.cateList[index].children.forEach(item => {
-					// console.log('item', item)
 					item.children.forEach(ite => {
-						// console.log('ite', ite)
-						ite.cat_icon = 'http://api-ugo-web.' + ite.cat_icon.split("v.")[1]
-						// console.log('截取的数据',ite.cat_icon)
+						console.log('ite', ite.cat_icon)
+						ite.cat_icon = ite.cat_icon.replace("dev", "web")
 					})
 				})
 				this.cateLevel2 = this.cateList[index].children
-				// console.log(this.cateLevel2)
 				this.scrollTop = this.scrollTop === 0 ? '1' : '0'
-
 			},
 			getoGoodsList(item2) {
 				// console.log(item2)
 				uni.navigateTo({
 					url: '/subpkg/goods_list/goods_list?cid=' + item2.cat_id
+				})
+			},
+			gotoSearch() {
+				uni.navigateTo({
+					url: '/subpkg/search/search'
 				})
 			}
 		}

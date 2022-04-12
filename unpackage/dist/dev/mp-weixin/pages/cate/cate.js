@@ -93,6 +93,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "recyclableRender", function() { return recyclableRender; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "components", function() { return components; });
 var components
+try {
+  components = {
+    mySearch: function() {
+      return __webpack_require__.e(/*! import() | components/my-search/my-search */ "components/my-search/my-search").then(__webpack_require__.bind(null, /*! @/components/my-search/my-search.vue */ 68))
+    }
+  }
+} catch (e) {
+  if (
+    e.message.indexOf("Cannot find module") !== -1 &&
+    e.message.indexOf(".vue") !== -1
+  ) {
+    console.error(e.message)
+    console.error("1. 排查组件名称拼写是否正确")
+    console.error(
+      "2. 排查组件是否符合 easycom 规范，文档：https://uniapp.dcloud.net.cn/collocation/pages?id=easycom"
+    )
+    console.error(
+      "3. 若组件不符合 easycom 规范，需手动引入，并在 components 中注册该组件"
+    )
+  } else {
+    throw e
+  }
+}
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
@@ -163,6 +186,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 var _default =
 {
   data: function data() {
@@ -181,7 +209,7 @@ var _default =
   onLoad: function onLoad() {
     var sysInfo = uni.getSystemInfoSync();
     console.log(sysInfo);
-    this.wh = sysInfo.windowHeight;
+    this.wh = sysInfo.windowHeight - 50;
 
     this.getCateList();
   },
@@ -189,33 +217,39 @@ var _default =
     getCateList: function getCateList() {var _this = this;return _asyncToGenerator( /*#__PURE__*/_regenerator.default.mark(function _callee() {var _yield$uni$$http$get, res;return _regenerator.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:_context.next = 2;return (
 
 
+
                   uni.$http.get('/api/public/v1/categories'));case 2:_yield$uni$$http$get = _context.sent;res = _yield$uni$$http$get.data;if (!(
                 res.meta.status !== 200)) {_context.next = 6;break;}return _context.abrupt("return", uni.$showMsg());case 6:
                 _this.cateList = res.message;
-
                 // 拿到二级分类
-                _this.cateLevel2 = res.message[0].children;case 8:case "end":return _context.stop();}}}, _callee);}))();
+                res.message[0].children.forEach(function (item) {
+                  item.children.forEach(function (ite) {
+                    ite.cat_icon = ite.cat_icon.replace("dev", "web");
+                  });
+                });
+                _this.cateLevel2 = res.message[0].children;case 9:case "end":return _context.stop();}}}, _callee);}))();
     },
     activeChanged: function activeChanged(index) {
       this.active = index;
       // 重新为二级分类赋值
       this.cateList[index].children.forEach(function (item) {
-        // console.log('item', item)
         item.children.forEach(function (ite) {
-          // console.log('ite', ite)
-          ite.cat_icon = 'http://api-ugo-web.' + ite.cat_icon.split("v.")[1];
-          // console.log('截取的数据',ite.cat_icon)
+          console.log('ite', ite.cat_icon);
+          ite.cat_icon = ite.cat_icon.replace("dev", "web");
         });
       });
       this.cateLevel2 = this.cateList[index].children;
-      // console.log(this.cateLevel2)
       this.scrollTop = this.scrollTop === 0 ? '1' : '0';
-
     },
     getoGoodsList: function getoGoodsList(item2) {
       // console.log(item2)
       uni.navigateTo({
         url: '/subpkg/goods_list/goods_list?cid=' + item2.cat_id });
+
+    },
+    gotoSearch: function gotoSearch() {
+      uni.navigateTo({
+        url: '/subpkg/search/search' });
 
     } } };exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
