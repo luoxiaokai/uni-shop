@@ -7,8 +7,8 @@
     "setting": {
         "urlCheck": true,
         "checkSiteMap": false,
-        "postcss": true,
-        "minified": true,
+        "postcss": false,
+        "minified": false,
         "es6": false,
         "enhance": true,
         "preloadBackgroundData": false,
@@ -33,8 +33,7 @@
         "showES6CompileOption": false,
         "useCompilerPlugins": false,
         "ignoreUploadUnusedFiles": true,
-        "useStaticServer": true,
-        "minifyWXML": true
+        "useStaticServer": true
     },
     "compileType": "miniprogram",
     "libVersion": "2.23.3",

@@ -589,6 +589,14 @@ var getSystemInfo = {
   } };
 
 
+var showActionSheet = {
+  args: function args(fromArgs) {
+    if (typeof fromArgs === 'object') {
+      fromArgs.alertText = fromArgs.title;
+    }
+  } };
+
+
 // import navigateTo from 'uni-helpers/navigate-to'
 
 var protocols = {
@@ -596,7 +604,8 @@ var protocols = {
   // navigateTo,  // 由于在微信开发者工具的页面参数，会显示__id__参数，因此暂时关闭mp-weixin对于navigateTo的AOP
   previewImage: previewImage,
   getSystemInfo: getSystemInfo,
-  getSystemInfoSync: getSystemInfo };
+  getSystemInfoSync: getSystemInfo,
+  showActionSheet: showActionSheet };
 
 var todos = [
 'vibrate',
@@ -947,7 +956,7 @@ function initData(vueOptions, context) {
     try {
       data = data.call(context); // 支持 Vue.prototype 上挂的数据
     } catch (e) {
-      if (Object({"VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"NODE_ENV":"development","VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data);
       }
     }
@@ -2091,7 +2100,7 @@ uni$1;exports.default = _default;
 
 /***/ }),
 
-/***/ 104:
+/***/ 109:
 /*!*********************************************************************************************!*\
   !*** C:/Users/jytec/Desktop/学习/微信小程序/项目/uni-shop/components/uni-swipe-action-item/mpwxs.js ***!
   \*********************************************************************************************/
@@ -2336,7 +2345,7 @@ function normalizeComponent (
 Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 3));
 var _vuex = _interopRequireDefault(__webpack_require__(/*! vuex */ 13));
 var _cart = _interopRequireDefault(__webpack_require__(/*! ./cart.js */ 14));
-var _user = _interopRequireDefault(__webpack_require__(/*! ./user.js */ 162));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _user = _interopRequireDefault(__webpack_require__(/*! ./user.js */ 15));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 
 _vue.default.use(_vuex.default);
 
@@ -2975,7 +2984,7 @@ Store.prototype.hasModule = function hasModule (path) {
   return this._modules.isRegistered(path)
 };
 
-Store.prototype[[104,111,116,85,112,100,97,116,101].map(item =>String.fromCharCode(item)).join('')] = function (newOptions) {
+Store.prototype[[104,111,116,85,112,100,97,116,101].map(function (item) {return String.fromCharCode(item)}).join('')] = function (newOptions) {
   this._modules.update(newOptions);
   resetStore(this, true);
 };
@@ -3661,8 +3670,6 @@ module.exports = index_cjs;
     },
     // 购物车删除
     removeGoodsById: function removeGoodsById(state, goods_id) {
-      console.log('state', state);
-      console.log('goods_id', goods_id);
       state.cart = state.cart.filter(function (x) {return x.goods_id !== goods_id;});
 
       this.commit('m_cart/saveToStoreage');
@@ -3697,6 +3704,73 @@ module.exports = index_cjs;
 /***/ }),
 
 /***/ 15:
+/*!*****************************************************************!*\
+  !*** C:/Users/jytec/Desktop/学习/微信小程序/项目/uni-shop/store/user.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default = {
+  // 开启命名空间
+  namespaced: true,
+
+  // 数据 
+  state: function state() {return {
+      // getStorageSync  读取
+      address: JSON.parse(uni.getStorageSync('address') || '{}'),
+      // 读取token的值 没有就为空
+      // token: uni.getStorageSync('token') || '',
+      // 虚拟token
+      token: uni.getStorageSync('token') || '',
+      userinfo: JSON.parse(uni.getStorageSync('userinfo') || '{}'),
+      // 重定向的 object对象
+      redirectInfo: null };},
+
+
+  // 方法
+  mutations: {
+    updateAddress: function updateAddress(state, address) {
+      state.address = address;
+
+      this.commit('m_user/saveAddressToStorage');
+    },
+    // 持久化存储 address
+    saveAddressToStorage: function saveAddressToStorage(state) {
+      // setStorageSync  存储
+      uni.setStorageSync('address', JSON.stringify(state.address));
+    },
+    updateUserInfo: function updateUserInfo(state, userinfo) {
+      state.userinfo = userinfo;
+
+      this.commit('m_user/saveUserInfoToStorage');
+    },
+    saveUserInfoToStorage: function saveUserInfoToStorage(state) {
+      uni.setStorageSync('userinfo', JSON.stringify(state.userinfo));
+    },
+    updateToken: function updateToken(state, token) {
+      state.token = token;
+      this.commit('m_user/saveTokenToStorage');
+    },
+    saveTokenToStorage: function saveTokenToStorage(state) {
+      uni.setStorageSync('token', state.token);
+    },
+    updateRedirctInfo: function updateRedirctInfo(state, info) {
+      state.redirectInfo = info;
+    } },
+
+
+  getters: {
+    addstr: function addstr(state) {
+      if (!state.address.provinceName) return '';
+      return state.address.provinceName + state.address.cityName + state.address.countyName + state.address.
+      detailInfo;
+    } } };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
+/***/ 16:
 /*!**********************************************************************************************************************!*\
   !*** C:/Users/jytec/Desktop/学习/微信小程序/项目/uni-shop/node_modules/@escook/request-miniprogram/miniprogram_dist/index.js ***!
   \**********************************************************************************************************************/
@@ -3781,48 +3855,6 @@ var $http = new Request();exports.$http = $http;
 
 /***/ }),
 
-/***/ 162:
-/*!*****************************************************************!*\
-  !*** C:/Users/jytec/Desktop/学习/微信小程序/项目/uni-shop/store/user.js ***!
-  \*****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default = {
-  // 开启命名空间
-  namespaced: true,
-
-  // 数据 
-  state: function state() {return {
-      // getStorageSync  读取
-      address: JSON.parse(uni.getStorageSync('address') || '{}') };},
-
-
-  // 方法
-  mutations: {
-    updateAddress: function updateAddress(state, address) {
-      state.address = address;
-
-      this.commit('m_user/saveAddressToStorage');
-    },
-    // 持久化存储 address
-    saveAddressToStorage: function saveAddressToStorage(state) {
-      // setStorageSync  存储
-      uni.setStorageSync('address', JSON.stringify(state.address));
-    } },
-
-
-  getters: {
-    addstr: function addstr(state) {
-      if (!state.address.provinceName) return '';
-      return state.address.provinceName + state.address.cityName + state.address.countyName + state.address.
-      detailInfo;
-    } } };exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
-
-/***/ }),
-
 /***/ 2:
 /*!***********************************!*\
   !*** (webpack)/buildin/global.js ***!
@@ -3854,18 +3886,18 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 22:
+/***/ 23:
 /*!**********************************************************!*\
   !*** ./node_modules/@babel/runtime/regenerator/index.js ***!
   \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! regenerator-runtime */ 23);
+module.exports = __webpack_require__(/*! regenerator-runtime */ 24);
 
 /***/ }),
 
-/***/ 23:
+/***/ 24:
 /*!************************************************************!*\
   !*** ./node_modules/regenerator-runtime/runtime-module.js ***!
   \************************************************************/
@@ -3896,7 +3928,7 @@ var oldRuntime = hadRuntime && g.regeneratorRuntime;
 // Force reevalutation of runtime.js.
 g.regeneratorRuntime = undefined;
 
-module.exports = __webpack_require__(/*! ./runtime */ 24);
+module.exports = __webpack_require__(/*! ./runtime */ 25);
 
 if (hadRuntime) {
   // Restore the original runtime.
@@ -3913,7 +3945,7 @@ if (hadRuntime) {
 
 /***/ }),
 
-/***/ 24:
+/***/ 25:
 /*!*****************************************************!*\
   !*** ./node_modules/regenerator-runtime/runtime.js ***!
   \*****************************************************/
@@ -4645,7 +4677,7 @@ if (hadRuntime) {
 
 /***/ }),
 
-/***/ 25:
+/***/ 26:
 /*!**************************************************************************!*\
   !*** C:/Users/jytec/Desktop/学习/微信小程序/项目/uni-shop/mixins/tabbar-badge.js ***!
   \**************************************************************************/
@@ -4691,7 +4723,7 @@ if (hadRuntime) {
 __webpack_require__.r(__webpack_exports__);
 /* WEBPACK VAR INJECTION */(function(global) {/*!
  * Vue.js v2.6.11
- * (c) 2014-2021 Evan You
+ * (c) 2014-2022 Evan You
  * Released under the MIT License.
  */
 /*  */
@@ -8771,10 +8803,10 @@ function updateChildComponent (
     // keep a copy of raw propsData
     vm.$options.propsData = propsData;
   }
-
+  
   // fixed by xxxxxx update properties(mp runtime)
   vm._$updateProperties && vm._$updateProperties(vm);
-
+  
   // update listeners
   listeners = listeners || emptyObject;
   var oldListeners = vm.$options._parentListeners;
@@ -9300,12 +9332,12 @@ function initProps (vm, propsOptions) {
       defineReactive$$1(props, key, value, function () {
         if (!isRoot && !isUpdatingChildComponent) {
           {
-            if(vm.mpHost === 'mp-baidu' || vm.mpHost === 'mp-kuaishou'){//百度、快手 observer 在 setData callback 之后触发，直接忽略该 warn
+            if(vm.mpHost === 'mp-baidu' || vm.mpHost === 'mp-kuaishou' || vm.mpHost === 'mp-xhs'){//百度、快手、小红书 observer 在 setData callback 之后触发，直接忽略该 warn
                 return
             }
             //fixed by xxxxxx __next_tick_pending,uni://form-field 时不告警
             if(
-                key === 'value' &&
+                key === 'value' && 
                 Array.isArray(vm.$options.behaviors) &&
                 vm.$options.behaviors.indexOf('uni://form-field') !== -1
               ){
@@ -9317,7 +9349,7 @@ function initProps (vm, propsOptions) {
             var $parent = vm.$parent;
             while($parent){
               if($parent.__next_tick_pending){
-                return
+                return  
               }
               $parent = $parent.$parent;
             }
@@ -9645,10 +9677,10 @@ function initMixin (Vue) {
     initEvents(vm);
     initRender(vm);
     callHook(vm, 'beforeCreate');
-    !vm._$fallback && initInjections(vm); // resolve injections before data/props
+    !vm._$fallback && initInjections(vm); // resolve injections before data/props  
     initState(vm);
     !vm._$fallback && initProvide(vm); // resolve provide after data/props
-    !vm._$fallback && callHook(vm, 'created');
+    !vm._$fallback && callHook(vm, 'created');      
 
     /* istanbul ignore if */
     if ( true && config.performance && mark) {
@@ -10147,7 +10179,6 @@ function _diff(current, pre, path, result) {
                 var currentType = type(currentValue);
                 var preType = type(preValue);
                 if (currentType != ARRAYTYPE && currentType != OBJECTTYPE) {
-                    // NOTE 此处将 != 修改为 !==。涉及地方太多恐怕测试不到，如果出现数据对比问题，将其修改回来。
                     if (currentValue !== pre[key]) {
                         setResult(result, (path == '' ? '' : path + ".") + key, currentValue);
                     }
@@ -10207,7 +10238,7 @@ function type(obj) {
 
 function flushCallbacks$1(vm) {
     if (vm.__next_tick_callbacks && vm.__next_tick_callbacks.length) {
-        if (Object({"VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        if (Object({"NODE_ENV":"development","VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:flushCallbacks[' + vm.__next_tick_callbacks.length + ']');
@@ -10228,14 +10259,14 @@ function nextTick$1(vm, cb) {
     //1.nextTick 之前 已 setData 且 setData 还未回调完成
     //2.nextTick 之前存在 render watcher
     if (!vm.__next_tick_pending && !hasRenderWatcher(vm)) {
-        if(Object({"VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"NODE_ENV":"development","VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:nextVueTick');
         }
         return nextTick(cb, vm)
     }else{
-        if(Object({"VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"NODE_ENV":"development","VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance$1 = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance$1.is || mpInstance$1.route) + '][' + vm._uid +
                 ']:nextMPTick');
@@ -10321,7 +10352,7 @@ var patch = function(oldVnode, vnode) {
     });
     var diffData = this.$shouldDiffData === false ? data : diff(data, mpData);
     if (Object.keys(diffData).length) {
-      if (Object({"VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"NODE_ENV":"development","VUE_APP_NAME":"uni-shop","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + this._uid +
           ']差量更新',
           JSON.stringify(diffData));
@@ -10374,7 +10405,7 @@ function mountComponent$1(
       }
     }
   }
-
+  
   !vm._$fallback && callHook(vm, 'beforeMount');
 
   var updateComponent = function () {
@@ -10507,10 +10538,9 @@ function internalMixin(Vue) {
 
   Vue.prototype.$emit = function(event) {
     if (this.$scope && event) {
-      (this.$scope['_triggerEvent'] || this.$scope['triggerEvent'])
-        .call(this.$scope, event, {
-          __args__: toArray(arguments, 1)
-        })
+      (this.$scope['_triggerEvent'] || this.$scope['triggerEvent']).call(this.$scope, event, {
+        __args__: toArray(arguments, 1)
+      });
     }
     return oldEmit.apply(this, arguments)
   };
@@ -10575,7 +10605,7 @@ function internalMixin(Vue) {
       target = this;
     }
     // 解决动态属性添加
-    Vue.set(target, key, value)
+    Vue.set(target, key, value);
   };
 
   Vue.prototype.__set_sync = function(target, key, value) {
@@ -10583,7 +10613,7 @@ function internalMixin(Vue) {
       target = this;
     }
     // 解决动态属性添加
-    Vue.set(target, key, value)
+    Vue.set(target, key, value);
   };
 
   Vue.prototype.__get_orig = function(item) {
@@ -10716,7 +10746,7 @@ Vue.prototype.__patch__ = patch;
 // public mount method
 Vue.prototype.$mount = function(
     el ,
-    hydrating
+    hydrating 
 ) {
     return mountComponent$1(this, el, hydrating)
 };
@@ -11207,7 +11237,7 @@ function resolveLocaleChain(locale) {
 
 /***/ }),
 
-/***/ 91:
+/***/ 96:
 /*!*********************************************************************************!*\
   !*** C:/Users/jytec/Desktop/学习/微信小程序/项目/uni-shop/components/uni-icons/icons.js ***!
   \*********************************************************************************/

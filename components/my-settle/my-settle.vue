@@ -9,32 +9,147 @@
 			合计: <text class="amout">￥{{checkedGoodsAmount}}</text>
 		</view>
 		<!-- 结算 -->
-		<view class="btn-settle">计算({{checkedCount}})</view>
+		<view class="btn-settle" @click="settlement">计算({{checkedCount}})</view>
 	</view>
 </template>
 
 <script>
 	import {
 		mapGetters,
-		mapMutations
+		mapMutations,
+		mapState
 	} from 'vuex'
 	export default {
 		name: "my-settle",
 		data() {
 			return {
-
+				// 倒计时的秒数
+				seconds: 3,
+				timer: null
 			};
 		},
 		computed: {
-			...mapGetters('m_cart', ['checkedCount', 'total','checkedGoodsAmount']),
+			...mapGetters('m_cart', ['checkedCount', 'total', 'checkedGoodsAmount']),
+			...mapGetters('m_user', ['addstr']),
+			...mapState('m_user', ['token']),
+			...mapState('m_cart', ['cart']),
 			isFullCheck() {
 				return this.total === this.checkedCount
 			}
 		},
-		methods:{
-			...mapMutations('m_cart',['updateAllGoodsState']),
-			changeAllState(){
+		methods: {
+			...mapMutations('m_cart', ['updateAllGoodsState']),
+			...mapMutations('m_user', ['updateRedirctInfo']),
+			changeAllState() {
 				this.updateAllGoodsState(!this.isFullCheck)
+			},
+			settlement() {
+				if (!this.checkedCount) return uni.$showMsg('请选择结算商品!')
+				if (!this.addstr) return uni.$showMsg('请选择收货地址!')
+				// if (!this.token) return uni.$showMsg('请先登录!')
+				if (!this.token) return this.delayNavigate()
+				this.payOrder()
+			},
+			async payOrder() {
+				// 创建订单
+				// 组织订单的信息对象
+				const orderInfo = {
+					// 真实价格
+					// order_price: this.checkedGoodsAmount,
+					// 虚拟价格
+					order_price: 0.01,
+					consignee_addr: this.addstr,
+					goods: this.cart.filter(x => x.goods_state).map(x => ({
+						goods_id: x.goods_id,
+						goods_number: x.goods_count,
+						goods_price: x.goods_price
+					}))
+				}
+				// 发起请求创建订单
+				const {
+					data: res
+				} = await uni.$http.post('/api/public/v1/my/orders/create', orderInfo)
+				if (res.meta.status === 200) {
+					// 得到服务器响应的订单编号
+					const orderNumber = res.message.order_number
+					// 订单预支付
+					const {
+						data: res2
+					} = await uni.$http.post('/api/public/v1/my/orders/req_unifiedorder', {
+						order_number: orderNumber
+					})
+					// 2.2 预付订单生成失败
+					if (res2.meta.status === 200) {
+						// 2.3 得到订单支付相关的必要参数
+						const payInfo = res2.message.pay
+
+						// 发起支付
+						// 调用uni.requestPayment  发起微信支付
+						const [res, succ] = await uni.requestPayment(payInfo)
+
+						// 未支付
+						if (err) return uni.$showMsg('订单未支付!')
+						// 查询支付状态
+						const {
+							data: res3
+						} = await uni.$http.post('/api/public/v1/my/orders/chkOrder', {
+							order_number: orderNumber
+						})
+
+						if (res3.meta.status === 200) {
+							uni.showToast({
+								title: '订单支付完成',
+								icon: 'none'
+							})
+						} else {
+							return uni.$showMsg('订单未支付!')
+						}
+
+
+					} else {
+						return uni.$showMsg('预付失败！')
+					}
+
+
+
+				} else {
+					return uni.showToast({
+						icon: 'none',
+						title: '权限不足,创建订单失败!',
+					})
+				}
+			},
+			delayNavigate() {
+				// 重置秒数
+				this.seconds = 3
+				this.showTips(this.seconds)
+
+				this.timer = setInterval(() => {
+					this.seconds--
+					if (this.seconds <= 0) {
+						clearInterval(this.timer)
+						uni.switchTab({
+							url: '/pages/my/my',
+							success: () => {
+								this.updateRedirctInfo({
+									openType: 'switchTab',
+									from: '/pages/cart/cart'
+								})
+							}
+						})
+						return
+					}
+					this.showTips(this.seconds)
+				}, 1000)
+			},
+			// 展示倒计时的提示消息
+			showTips(n) {
+				uni.showToast({
+					icon: 'none',
+					title: '请登录后再结算!' + n + '秒之后自动跳转到登录页',
+					mask: true,
+					duration: 1500
+				})
 			}
 		}
 	}

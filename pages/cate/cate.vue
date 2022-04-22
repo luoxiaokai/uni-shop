@@ -80,16 +80,17 @@
 				this.active = index
 				// 重新为二级分类赋值
 				this.cateList[index].children.forEach(item => {
-					item.children.forEach(ite => {
-						console.log('ite', ite.cat_icon)
-						ite.cat_icon = ite.cat_icon.replace("dev", "web")
-					})
+					if (item.children) {
+						item.children.forEach(ite => {
+							ite.cat_icon = ite.cat_icon.replace("dev", "web")
+						})
+					}
+
 				})
 				this.cateLevel2 = this.cateList[index].children
 				this.scrollTop = this.scrollTop === 0 ? '1' : '0'
 			},
 			getoGoodsList(item2) {
-				// console.log(item2)
 				uni.navigateTo({
 					url: '/subpkg/goods_list/goods_list?cid=' + item2.cat_id
 				})

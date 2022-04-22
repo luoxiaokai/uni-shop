@@ -73,7 +73,6 @@
 				} = await uni.$http.get('/api/public/v1/home/swiperdata')
 				if (res.meta.status !== 200) return uni.$showMsg()
 				this.swiperList = res.message
-				// console.log(this.swiperList)
 			},
 			// 分类导航数据
 			async getNavList() {
@@ -82,7 +81,6 @@
 				} = await uni.$http.get('/api/public/v1/home/catitems')
 				if (res.meta.status !== 200) return uni.$showMsg()
 				this.navList = res.message
-				console.log(this.navList)
 			},
 			navClickHandler(item) {
 				if (item.name === "分类") {
@@ -104,7 +102,6 @@
 					})
 				})
 				this.floorList = res.message
-				console.log(this.floorList)
 			},
 			gotoSearch(){
 				uni.navigateTo({

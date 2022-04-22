@@ -44,8 +44,6 @@ export default {
 		},
 		// 购物车删除
 		removeGoodsById(state, goods_id) {
-			console.log('state', state)
-			console.log('goods_id', goods_id)
 			state.cart = state.cart.filter(x => x.goods_id !== goods_id)
 
 			this.commit('m_cart/saveToStoreage')
