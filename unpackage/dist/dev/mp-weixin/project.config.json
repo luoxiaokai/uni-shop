@@ -7,8 +7,8 @@
     "setting": {
         "urlCheck": true,
         "checkSiteMap": false,
-        "postcss": false,
-        "minified": false,
+        "postcss": true,
+        "minified": true,
         "es6": false,
         "enhance": true,
         "preloadBackgroundData": false,
@@ -33,12 +33,13 @@
         "showES6CompileOption": false,
         "useCompilerPlugins": false,
         "ignoreUploadUnusedFiles": true,
-        "useStaticServer": true
+        "useStaticServer": true,
+        "minifyWXML": true
     },
     "compileType": "miniprogram",
     "libVersion": "2.23.3",
     "appid": "wxd65b3d6b5d5c0809",
-    "projectname": "uni-shop",
+    "projectname": "商品优购",
     "condition": {
         "search": {
             "current": -1,
